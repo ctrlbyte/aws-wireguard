@@ -1,0 +1,12 @@
+---
+
+- hosts: all
+  become: yes
+
+  roles:
+    - { role: os }
+    - { role: docker }
+    - { role: geerlingguy.ntp }
+    - { role: geerlingguy.security }
+    - { role: wireguard }
+

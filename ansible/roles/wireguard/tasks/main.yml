@@ -1,0 +1,35 @@
+#################################################################
+#
+# This role copies and run Wireguard VPN in a docker container
+#
+#################################################################
+
+- name: Copy docker-compose to target directory
+  ansible.builtin.copy:
+    src: docker-compose.yml
+    dest: /wireguard/
+
+- name: Run docker-compose 
+  community.docker.docker_compose:
+    project_src: /wireguard/
+    build: no
+  register: output
+
+- ansible.builtin.debug:
+    var: output
+
+- name: Find wireguard configs
+  ansible.builtin.find:
+    paths: /wireguard/
+    recurse: yes
+    use_regex: yes
+    patterns: 'peer.\.'
+  register: configs
+
+- name: Fetch wireguard configs
+  ansible.builtin.fetch:
+    src: "{{ item.path }}"
+    dest: "{{ playbook_dir }}/peers/"
+    flat: yes
+  with_items: "{{ configs.files }}"
+

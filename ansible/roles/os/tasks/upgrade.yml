@@ -1,0 +1,6 @@
+- name: Update all packages on Debian/Ubuntu and autoremove
+  ansible.builtin.apt:
+    autoremove: yes
+    update_cache: yes
+
+

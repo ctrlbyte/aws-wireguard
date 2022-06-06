@@ -1,0 +1,54 @@
+###############################################################################
+#
+# This will install the latest Docker CE (if it was not already installed)
+#
+###############################################################################
+
+- name: Install Docker System Packages
+  ansible.builtin.apt: 
+    name: "{{ item }}"
+    state: latest
+    update_cache: yes
+  loop:
+    - apt-transport-https
+    - ca-certificates
+    - gnupg
+    - curl
+    - lsb-release
+      
+- name: Add Docker GPG key
+  ansible.builtin.apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg 
+    state: present
+
+- name: Add Docker stable repo
+  ansible.builtin.apt_repository:
+    repo: deb https://download.docker.com/linux/ubuntu focal stable
+    state: present
+
+- name: Install Docker CE, Docker CE CLI, Containerd.io, Docker Compose
+  ansible.builtin.apt:
+    name: "{{ item  }}"
+    update_cache: yes
+    state: present
+  loop:
+    - docker-ce
+    - docker-ce-cli
+    - docker-compose
+    - containerd.io
+
+- name: Create Docker group
+  ansible.builtin.group:
+    name: docker
+    state: present
+
+- name: Add users to Docker group
+  tags: docker
+  ansible.builtin.user:
+    name: ansible
+    groups: docker
+    append: yes
+
+- name: Reset SSH connection for user group change
+  ansible.builtin.meta:
+    reset_connection
